@@ -46,10 +46,7 @@
         "laravel": {
             "providers": [
                 "Livijn\\LaravelBackupDownloader\\LaravelBackupDownloaderServiceProvider"
-            ],
-            "aliases": {
-                "LaravelBackupDownloader": "Livijn\\LaravelBackupDownloader\\LaravelBackupDownloaderFacade"
-            }
+            ]
         }
     }
 }

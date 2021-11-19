@@ -16,15 +16,4 @@ class LaravelBackupDownloaderServiceProvider extends ServiceProvider
              ]);
         }
     }
-
-    /**
-     * Register the application services.
-     */
-    public function register()
-    {
-        // Register the main class to use with the facade
-        $this->app->singleton('laravel-backup-downloader', function () {
-            return new LaravelBackupDownloader;
-        });
-    }
 }
