@@ -45,10 +45,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "LaravelBackupDownloaderServiceProvider"
+                "Livijn\\LaravelBackupDownloader\\LaravelBackupDownloaderServiceProvider"
             ],
             "aliases": {
-                "LaravelBackupDownloader": "LaravelBackupDownloaderFacade"
+                "LaravelBackupDownloader": "Livijn\\LaravelBackupDownloader\\LaravelBackupDownloaderFacade"
             }
         }
     }

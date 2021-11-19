@@ -3,9 +3,6 @@ namespace Livijn\LaravelBackupDownloader;
 
 use Illuminate\Support\Facades\Facade;
 
-/**
- * @see \Livijn\LaravelBackupDownloader\Skeleton\SkeletonClass
- */
 class LaravelBackupDownloaderFacade extends Facade
 {
     /**

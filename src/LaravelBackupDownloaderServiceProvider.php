@@ -12,7 +12,7 @@ class LaravelBackupDownloaderServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
              $this->commands([
-                 new DownloadCommand,
+                 DownloadCommand::class,
              ]);
         }
     }
