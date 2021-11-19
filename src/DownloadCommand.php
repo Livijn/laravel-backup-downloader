@@ -26,10 +26,10 @@ class DownloadCommand extends Command
         $progressBar = $this->output->createProgressBar(100);
         $progressBar->start();
 
-        $files = Storage::allFiles('backups/Skaffa-Hund');
-        $storage = Storage::disk('database');
+        $files = Storage::disk(config('backup.backup.destination.disks')[0])->allFiles(config('backup.backup.name'));
+        $storage = Storage::disk('local');
         $zipFile = 'data.zip';
-        $sqlFile = 'dbdump.sql';
+        $sqlFile = '../database/dbdump.sql';
 
         $storage->delete($sqlFile);
 
