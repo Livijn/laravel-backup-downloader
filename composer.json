@@ -1,0 +1,55 @@
+{
+    "name": "livijn/laravel-backup-downloader",
+    "description": "Downloads the backups",
+    "keywords": [
+        "livijn",
+        "laravel-backup-downloader"
+    ],
+    "homepage": "https://github.com/livijn/laravel-backup-downloader",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Fredrik Livijn",
+            "email": "ouff@live.se",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "illuminate/support": "^8.0",
+        "spatie/laravel-backup": "^7"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Livijn\\LaravelBackupDownloader\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Livijn\\LaravelBackupDownloader\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LaravelBackupDownloaderServiceProvider"
+            ],
+            "aliases": {
+                "LaravelBackupDownloader": "LaravelBackupDownloaderFacade"
+            }
+        }
+    }
+}
