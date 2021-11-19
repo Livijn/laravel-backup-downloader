@@ -10,6 +10,11 @@ class ImportCommand extends Command
 
     public function handle()
     {
+        if (config('app.env') == 'production') {
+            $this->error('Nope, not in production.');
+            return;
+        }
+
         $this->call('cache:clear');
 
         $this->call('horizon:clear');
