@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class DownloadCommand extends Command
 {
-    protected $signature = 'backup:download';
+    protected $signature = 'backup:download {sql=mysql-forge.sql}';
     protected $description = 'Fetches a backup';
     protected Filesystem $storage;
 
@@ -22,6 +22,8 @@ class DownloadCommand extends Command
 
     public function handle()
     {
+        $sqlName = $this->argument('sql');
+
         if (config('app.env') == 'production') {
             $this->error('Nope, not in production.');
             return;
@@ -60,7 +62,7 @@ class DownloadCommand extends Command
 
         $storage->delete($zipFile);
 
-        $storage->move('db-dumps/mysql-forge.sql', $sqlFile);
+        $storage->move("db-dumps/$sqlName", $sqlFile);
         $storage->deleteDir('db-dumps');
 
         $progressBar->finish();
