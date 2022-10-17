@@ -63,7 +63,7 @@ class DownloadCommand extends Command
         $storage->delete($zipFile);
 
         $storage->move("db-dumps/$sqlName", $sqlFile);
-        $storage->deleteDir('db-dumps');
+        $storage->delete('db-dumps');
 
         $progressBar->finish();
     }
