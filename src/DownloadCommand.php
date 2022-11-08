@@ -37,7 +37,10 @@ class DownloadCommand extends Command
         ]));
 
         $files = $this->getBackupFiles();
-
+        $latestFile = Arr::last($files);
+        
+        $this->output->title("Downloading backup: " . $latestFile);
+        
         $progressBar = $this->output->createProgressBar(100);
         $progressBar->start();
 
@@ -49,7 +52,7 @@ class DownloadCommand extends Command
 
         $progressBar->advance(33);
 
-        file_put_contents($storage->path($zipFile), $this->storage->get(Arr::last($files)));
+        file_put_contents($storage->path($zipFile), $this->storage->get($latestFile));
 
         $progressBar->advance(33);
 
@@ -70,9 +73,8 @@ class DownloadCommand extends Command
 
     private function getBackupFiles(): array
     {
-        $backupName = (string)preg_replace('/[^a-zA-Z0-9.]/', '-', config('backup.backup.name'));
-        $files = $this->storage->allFiles($backupName);
-
+        $files = $this->storage->allFiles(config('backup.backup.name'));
+        
         if (count($files) === 0) {
             throw new \Exception('No files found.');
         }
