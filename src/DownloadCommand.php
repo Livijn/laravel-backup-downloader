@@ -11,17 +11,12 @@ class DownloadCommand extends Command
 {
     protected $signature = 'backup:download {sql=mysql-forge.sql}';
     protected $description = 'Fetches a backup';
-    protected Filesystem $storage;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->storage = Storage::disk(config('backup.backup.destination.disks')[0]);
-    }
+    protected ?Filesystem $storage;
 
     public function handle()
     {
+        $this->storage = Storage::disk(config('backup.backup.destination.disks')[0]);
+        
         $sqlName = $this->argument('sql');
 
         if (config('app.env') == 'production') {
