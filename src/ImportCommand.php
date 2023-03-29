@@ -5,7 +5,7 @@ use Illuminate\Console\Command;
 
 class ImportCommand extends Command
 {
-    protected $signature = 'backup:import';
+    protected $signature = 'backup:import {--sql=} {--migrate=1}';
     protected $description = 'Imports the latest db';
 
     public function handle()
@@ -14,25 +14,36 @@ class ImportCommand extends Command
             $this->error('Nope, not in production.');
             return;
         }
-
+        
         $this->call('cache:clear');
 
         $this->call('horizon:clear');
+        
+        $database = config('database.connections.mysql.database');
+        
+        $this->prepareDatabase($database);
 
-        $this->importDatabase();;
+        $this->importFile($database, 'dbdump.sql');
+        
+        if ($this->option('sql')) {
+            $this->importFile($database, $this->option('sql'));
+        }
 
-        $this->call('migrate');
+        if ((int) $this->option('migrate')) {
+            $this->call('migrate');
+        }
     }
 
-    private function importDatabase(): void
+    private function prepareDatabase(string $database): void
     {
-        $database = config('database.connections.mysql.database');
-
-        $this->info('PREPARE DB');
+        $this->info("PREPARE DB: {$database}");
         echo exec("mysql -u root -e 'DROP DATABASE `$database`'");
         echo exec("mysql -u root -e 'CREATE DATABASE `$database`'");
+    }
 
-        $this->info('IMPORT SQL');
-        echo exec('mysql -u root '.$database.' --force < storage/backups/dbdump.sql');
+    private function importFile(string $database, string $file)
+    {
+        $this->info("IMPORT FILE: {$file}");
+        echo exec("mysql -u root {$database} --force < storage/backups/{$file}");
     }
 }
