@@ -15,11 +15,11 @@ class DownloadCommand extends Command
 
     protected $description = 'Fetches a backup';
 
-    protected ?Filesystem $storage;
+    protected ?Filesystem $backupStorage;
 
     public function handle()
     {
-        $this->storage = Storage::disk(config('backup.backup.destination.disks')[0]);
+        $this->backupStorage = Storage::disk(config('backup.backup.destination.disks')[0]);
 
         if (config('app.env') == 'production') {
             $this->error('Nope, not in production.');
@@ -44,16 +44,16 @@ class DownloadCommand extends Command
 
         $progressBar = $this->output->createProgressBar(100);
         $progressBar->start();
-
+        
         $storage = Storage::disk('backups-downloader');
         $zipFile = 'data.zip';
         $sqlFile = 'backups/dbdump.sql';
-
+        
         $storage->delete($sqlFile);
 
         $progressBar->advance(33);
-
-        file_put_contents($storage->path($zipFile), $this->storage->get($backupFile));
+        
+        $storage->writeStream($zipFile, $this->backupStorage->readStream($backupFile));
 
         $progressBar->advance(33);
 
@@ -74,8 +74,8 @@ class DownloadCommand extends Command
 
     private function getBackupFiles(): array
     {
-        $files = $this->storage->allFiles(config('backup.backup.name'));
-
+        $files = $this->backupStorage->allFiles(config('backup.backup.name'));
+        
         if (count($files) === 0) {
             throw new \Exception('No files found.');
         }
