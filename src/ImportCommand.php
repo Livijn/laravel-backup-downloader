@@ -2,13 +2,22 @@
 
 namespace Livijn\LaravelBackupDownloader;
 
-use Illuminate\Console\Command;
-
 class ImportCommand extends Command
 {
-    protected $signature = 'backup:import {--sql=} {--migrate=1}';
+    protected $signature = 'backup:import {--migrate=1} {--skip=}';
 
     protected $description = 'Imports the latest db';
+
+    public function __handle()
+    {
+        if ($this->option('reduced')) {
+            $tables = join('|', explode(',', $this->option('reduced')));
+            $fullFile = storage_path("backups/dbdump.sql");
+            $reducedFile = storage_path("backups/dbdump.sql");
+            
+            echo exec("sed -r '/INSERT INTO `({$tables})`/d' {$fullFile} > {$reducedFile}");
+        }
+    }
 
     public function handle()
     {
@@ -25,12 +34,14 @@ class ImportCommand extends Command
         $database = config('database.connections.mysql.database');
 
         $this->prepareDatabase($database);
-
-        $this->importFile($database, 'dbdump.sql');
-
-        if ($this->option('sql')) {
-            $this->importFile($database, $this->option('sql'));
-        }
+        
+        $this->importFile(
+            $database, 
+            'dbdump.sql',
+            $this->option('skip') ?
+                explode(',', $this->option('skip')) 
+                : [],
+        );
 
         if ((int) $this->option('migrate')) {
             $this->call('migrate');
@@ -44,9 +55,22 @@ class ImportCommand extends Command
         echo exec("mysql -u root -e 'CREATE DATABASE `$database`'");
     }
 
-    private function importFile(string $database, string $file)
+    private function importFile(string $database, string $file, array $tablesToSkip = [])
     {
         $this->info("IMPORT FILE: {$file}");
-        echo exec("mysql -u root {$database} --force < storage/backups/{$file}");
+        
+        if (count($tablesToSkip) === 0) {
+            echo exec("mysql -u root {$database} --force < storage/backups/{$file}");
+        } else {
+            $this->info("SKIPPING TABLES");
+            
+            $tablesToSkip = join('|', $tablesToSkip);
+            $exp = "INSERT INTO `({$tablesToSkip})`";
+            $filePath = storage_path("backups/{$file}");
+
+            echo exec("cat {$filePath} | grep -vE '{$exp}' | mysql -u root {$database}");
+        }
+        
+        $this->info('DONE IMPORTING');
     }
 }

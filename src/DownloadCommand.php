@@ -2,7 +2,6 @@
 
 namespace Livijn\LaravelBackupDownloader;
 
-use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -44,15 +43,15 @@ class DownloadCommand extends Command
 
         $progressBar = $this->output->createProgressBar(100);
         $progressBar->start();
-        
+
         $storage = Storage::disk('backups-downloader');
         $zipFile = 'data.zip';
         $sqlFile = 'backups/dbdump.sql';
-        
+
         $storage->delete($sqlFile);
 
         $progressBar->advance(33);
-        
+
         $storage->writeStream($zipFile, $this->backupStorage->readStream($backupFile));
 
         $progressBar->advance(33);
@@ -75,7 +74,7 @@ class DownloadCommand extends Command
     private function getBackupFiles(): array
     {
         $files = $this->backupStorage->allFiles(config('backup.backup.name'));
-        
+
         if (count($files) === 0) {
             throw new \Exception('No files found.');
         }
