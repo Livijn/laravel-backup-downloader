@@ -29,7 +29,7 @@ class DownloadCommand extends Command
         config()->set('filesystems.disks', array_merge(config('filesystems.disks'), [
             'backups-downloader' => [
                 'driver' => 'local',
-                'root' => storage_path(),
+                'root' => storage_path('app/private'),
             ],
         ]));
 
@@ -46,7 +46,7 @@ class DownloadCommand extends Command
 
         $storage = Storage::disk('backups-downloader');
         $zipFile = 'data.zip';
-        $sqlFile = 'backups/dbdump.sql';
+        $sqlFile = 'dbdump.sql';
 
         $storage->delete($sqlFile);
 

@@ -8,17 +8,6 @@ class ImportCommand extends Command
 
     protected $description = 'Imports the latest db';
 
-    public function __handle()
-    {
-        if ($this->option('reduced')) {
-            $tables = join('|', explode(',', $this->option('reduced')));
-            $fullFile = storage_path("backups/dbdump.sql");
-            $reducedFile = storage_path("backups/dbdump.sql");
-            
-            echo exec("sed -r '/INSERT INTO `({$tables})`/d' {$fullFile} > {$reducedFile}");
-        }
-    }
-
     public function handle()
     {
         if (config('app.env') == 'production') {
@@ -60,13 +49,13 @@ class ImportCommand extends Command
         $this->info("IMPORT FILE: {$file}");
         
         if (count($tablesToSkip) === 0) {
-            echo exec("mysql -u root {$database} --force < storage/backups/{$file}");
+            echo exec("mysql -u root {$database} --force < storage/app/private/{$file}");
         } else {
             $this->info("SKIPPING TABLES");
             
             $tablesToSkip = join('|', $tablesToSkip);
             $exp = "INSERT INTO `({$tablesToSkip})`";
-            $filePath = storage_path("backups/{$file}");
+            $filePath = storage_path("app/private/{$file}");
 
             echo exec("cat {$filePath} | grep -vE '{$exp}' | mysql -u root {$database}");
         }
