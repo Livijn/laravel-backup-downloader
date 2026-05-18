@@ -19,6 +19,13 @@ composer require livijn/laravel-backup-downloader
 php artisan backup:download
 ```
 
+```php
+php artisan backup:import
+```
+
+`backup:import` skips `views` inserts by default because that table is usually large and disposable in local imports.
+Use `--skip=` to import every table, or `--skip=views,telescope_entries` to skip multiple tables.
+
 ### Testing
 
 ```bash
