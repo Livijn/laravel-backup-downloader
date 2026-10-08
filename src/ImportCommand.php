@@ -9,7 +9,8 @@ class ImportCommand extends Command
 {
     protected $signature = 'backup:import
         {--migrate=1 : Run migrations after importing}
-        {--skip=views : Comma-separated tables whose INSERT statements should be skipped}';
+        {--skip=views : Comma-separated tables whose INSERT statements should be skipped}
+        {--defer-indexes : Build eligible secondary indexes after loading the data}';
 
     protected $description = 'Imports the latest db';
 
@@ -102,14 +103,22 @@ class ImportCommand extends Command
 
     private function importFile(string $database, string $filePath, array $tablesToSkip = []): bool
     {
+        $startedAt = microtime(true);
         $this->info("IMPORT FILE: {$filePath}");
 
         if ($tablesToSkip !== []) {
             $this->warn('SKIPPING TABLES: '.implode(', ', $tablesToSkip));
         }
 
-        $mysql = $this->mysqlCommand(['--force', $database]);
-        $reader = $this->fileReaderCommand($filePath);
+        $deferIndexes = (bool) $this->option('defer-indexes');
+
+        if ($deferIndexes) {
+            $this->info('Building eligible secondary indexes after loading the data.');
+        }
+
+        // A failed index rebuild must fail the import instead of continuing with --force.
+        $mysql = $this->mysqlCommand($deferIndexes ? [$database] : ['--force', $database]);
+        $reader = $this->fileReaderCommand($filePath, $deferIndexes);
 
         if ($tablesToSkip === []) {
             $imported = $this->runShellCommand("{$reader} | {$mysql}");
@@ -125,15 +134,23 @@ class ImportCommand extends Command
         }
 
         if ($imported) {
-            $this->info('DONE IMPORTING');
+            $this->info(sprintf('DONE IMPORTING (%.1f s)', microtime(true) - $startedAt));
         }
 
         return $imported;
     }
 
-    private function fileReaderCommand(string $filePath): string
+    private function fileReaderCommand(string $filePath, bool $deferIndexes = false): string
     {
         $pv = trim((string) shell_exec('command -v pv 2>/dev/null'));
+
+        if ($deferIndexes) {
+            $reader = escapeshellarg(PHP_BINARY).' '.escapeshellarg(__DIR__.'/../bin/filter-dump.php').' '.escapeshellarg($filePath);
+
+            return $pv !== ''
+                ? $reader.' | '.escapeshellarg($pv).' --size='.escapeshellarg((string) filesize($filePath))
+                : $reader;
+        }
 
         if ($pv !== '') {
             return escapeshellarg($pv).' '.escapeshellarg($filePath);

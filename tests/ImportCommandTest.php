@@ -7,16 +7,14 @@ use ReflectionMethod;
 
 class ImportCommandTest extends TestCase
 {
-    /** @test */
-    public function it_skips_views_by_default(): void
+    public function test_it_skips_views_by_default(): void
     {
         $command = new ImportCommand;
 
         $this->assertSame('views', $command->getDefinition()->getOption('skip')->getDefault());
     }
 
-    /** @test */
-    public function it_builds_the_mysql_command_from_database_config(): void
+    public function test_it_builds_the_mysql_command_from_database_config(): void
     {
         config()->set('database.connections.mysql.host', 'db.local');
         config()->set('database.connections.mysql.port', '3307');
@@ -31,8 +29,7 @@ class ImportCommandTest extends TestCase
         );
     }
 
-    /** @test */
-    public function it_prefers_the_configured_socket_over_host_and_port(): void
+    public function test_it_prefers_the_configured_socket_over_host_and_port(): void
     {
         config()->set('database.connections.mysql.unix_socket', '/tmp/mysql.sock');
 

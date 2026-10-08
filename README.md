@@ -23,8 +23,20 @@ php artisan backup:download
 php artisan backup:import
 ```
 
+`backup:download` reuses the local SQL dump when the selected backup, SQL entry, and local file metadata are unchanged. Use `php artisan backup:download --force` to fetch it again. Only the requested SQL entry is extracted, and a failed download leaves the previous dump available while returning a failure exit code.
+
 `backup:import` skips `views` inserts by default because that table is usually large and disposable in local imports.
 Use `--skip=` to import every table, or `--skip=views,telescope_entries` to skip multiple tables.
+
+To build eligible secondary indexes after loading the data:
+
+```bash
+php artisan backup:import --defer-indexes
+```
+
+This mode keeps PRIMARY, UNIQUE and foreign-key-supporting indexes during the load, then rebuilds the deferred indexes before completing. It preserves row data and leaves unsupported dump formats unchanged. SQL errors, including failed index rebuilds, stop the import before migrations run. It can be combined with `--skip`.
+
+Both commands report elapsed time for their data processing phases.
 
 ### Testing
 
