@@ -36,7 +36,7 @@ php artisan backup:import --defer-indexes
 
 This mode keeps PRIMARY, UNIQUE and foreign-key-supporting indexes during the load, then rebuilds the deferred indexes before completing. It preserves row data and leaves unsupported dump formats unchanged. SQL errors, including failed index rebuilds, stop the import before migrations run. It can be combined with `--skip`.
 
-Both commands report elapsed time for their data processing phases.
+Downloads and SQL extraction show live progress with bytes transferred, speed and estimated time remaining. Both commands report elapsed time for their data processing phases.
 
 ### Testing
 
